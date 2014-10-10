@@ -1,13 +1,51 @@
-\documentclass{article}
-\usepackage{czt}
+A conta do cliente - seja ela individual ou conjunta - é formada por um conjunto de movimentações. Essas
+movimentações serão responsáveis por gerar o saldo da conta do cliente a partir do tipo de movimentação,
+ou seja, tipo crédito ou débito. 
 
-\begin{document}
-\begin{zsection}
-  \SECTION bankzspecification \parents standard\_toolkit
-\end{zsection}
+\begin{zed}
+  [ Cliente, Movimentacao ]
+\end{zed}
 
-This specification describes ...
+\begin{zed}
+  TipoMovimentacao ::= CREDITO | DEBITO
+\end{zed}
 
+Além disso, a conta do cliente terá um identificador para informar qual a modalidade da conta, ou seja,
+se a conta é do tipo "conta corrente" ou "conta poupança". Dessa forma, o sistema poderá tratar os casos
+em que as operações de saque, pagamentos e afins irão - ou não - modificar ambos os saldos.
 
+\begin{zed}
+  TipoConta ::= CORRENTE | POUPANCA
+\end{zed}
 
-\end{document}
+Note que uma conta poderá conter um cliente como dependente. Nesse caso, nosso schema de conta do cliente
+deverá conter uma única entidade identificando tal cliente que estará contido na lista de clientes 
+cadastrados no sistema.
+
+\begin{schema}{ContaCorrente}
+	tipo!: TipoConta\\
+	movimentacoes: \power Movimentacao\\
+\where
+	tipo! = CORRENTE
+\end{schema}
+
+\begin{schema}{ContaPoupanca}
+	tipo!: TipoConta\\
+	movimentacoes: \power Movimentacao\\
+\where
+	tipo! = POUPANCA
+\end{schema}
+
+\begin{schema}{Conta}
+	cc: ContaCorrente\\
+	cp: ContaPoupanca\\
+	titular: Cliente\\
+	dependente: Cliente
+\end{schema}
+
+\begin{schema}{Gerente}
+\end{schema}
+
+\begin{schema}{Banco}
+	contas: Gerente \pfun Conta\\
+\end{schema}
