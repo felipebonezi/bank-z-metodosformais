@@ -65,9 +65,13 @@ cadastrados no sistema.
 	contas: Gerente \pfun Conta\\
 \end{schema}
 
+\begin{zed}
+    [Saldo]
+\end{zed}
+
+
 \begin{schema}{Movimentacao}
-
-\where
-
+	tm:TipoMovimentacao\\
+	sd!:Saldo
 \end{schema}
 
