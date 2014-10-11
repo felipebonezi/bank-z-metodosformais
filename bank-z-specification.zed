@@ -51,5 +51,8 @@ cadastrados no sistema.
 \end{schema}
 
 \begin{schema}{Movimentacao}
+
+\where
+
 \end{schema}
 
