@@ -1,6 +1,6 @@
-A conta do cliente - seja ela individual ou conjunta - È formada por um conjunto de movimentaÁıes. Essas
-movimentaÁıes ser„o respons·veis por gerar o saldo da conta do cliente a partir do tipo de movimentaÁ„o,
-ou seja, tipo crÈdito ou dÈbito. 
+A conta do cliente - seja ela individual ou conjunta - √© formada por um conjunto de movimenta√ß√µes. Essas
+movimenta√ß√µes ser√£o respons√°veis por gerar o saldo da conta do cliente a partir do tipo de movimenta√ß√£o,
+ou seja, tipo cr√©dito ou d√©bito. 
 
 \begin{zed}
   [ Cliente, Movimentacao ]
@@ -10,16 +10,16 @@ ou seja, tipo crÈdito ou dÈbito.
   TipoMovimentacao ::= CREDITO | DEBITO
 \end{zed}
 
-AlÈm disso, a conta do cliente ter· um identificador para informar qual a modalidade da conta, ou seja,
-se a conta È do tipo "conta corrente" ou "conta poupanÁa". Dessa forma, o sistema poder· tratar os casos
-em que as operaÁıes de saque, pagamentos e afins ir„o - ou n„o - modificar ambos os saldos.
+Al√©m disso, a conta do cliente ter√° um identificador para informar qual a modalidade da conta, ou seja,
+se a conta √© do tipo "conta corrente" ou "conta poupan√ßa". Dessa forma, o sistema poder√° tratar os casos
+em que as opera√ß√µes de saque, pagamentos e afins ir√£o - ou n√£o - modificar ambos os saldos.
 
 \begin{zed}
   TipoConta ::= CORRENTE | POUPANCA
 \end{zed}
 
-Note que uma conta poder· conter um cliente como dependente. Nesse caso, nosso schema de conta do cliente
-dever· conter uma ˙nica entidade identificando tal cliente que estar· contido na lista de clientes 
+Note que uma conta poder√° conter um cliente como dependente. Nesse caso, nosso schema de conta do cliente
+dever√° conter uma √∫nica entidade identificando tal cliente que estar√° contido na lista de clientes 
 cadastrados no sistema.
 
 \begin{schema}{ContaCorrente}
@@ -49,3 +49,7 @@ cadastrados no sistema.
 \begin{schema}{Banco}
 	contas: Gerente \pfun Conta\\
 \end{schema}
+
+\begin{schema}{Movimentacao}
+\end{schema}
+
