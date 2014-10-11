@@ -3,7 +3,7 @@ movimentações serão responsáveis por gerar o saldo da conta do cliente a par
 ou seja, tipo crédito ou débito. 
 
 \begin{zed}
-  [ Cliente, Movimentacao ]
+  [ Nome, Movimentacao ]
 \end{zed}
 
 \begin{zed}
@@ -18,6 +18,16 @@ em que as operações de saque, pagamentos e afins irão - ou não - modificar a
   TipoConta ::= CORRENTE | POUPANCA
 \end{zed}
 
+A conta poupança pode ser de baixa automática ou de baixa manual. A primeira dá a possibilidade de haver 
+uma transição automática, da poupança para a conta corrente, caso o saldo da conta seja menor do que o débito
+que o usuário esteja tentando fazer naquele momento. A segunda opção não possibilita transição automática, 
+caso o saldo da conta corrente seja menor do que a do débito, que o usuário está tentando fazer no momento.
+
+\begin{zed}
+  TipoPoupanca ::= baixaAutomatica | baixaManual
+\end{zed}
+
+
 Note que uma conta poderá conter um cliente como dependente. Nesse caso, nosso schema de conta do cliente
 deverá conter uma única entidade identificando tal cliente que estará contido na lista de clientes 
 cadastrados no sistema.
@@ -31,9 +41,14 @@ cadastrados no sistema.
 
 \begin{schema}{ContaPoupanca}
 	tipo!: TipoConta\\
+	tipoDaPoupanca!: TipoPoupanca\\
 	movimentacoes: \power Movimentacao\\
 \where
 	tipo! = POUPANCA
+\end{schema}
+
+\begin{schema}{Cliente}
+	nomeDoCliente: Nome\\
 \end{schema}
 
 \begin{schema}{Conta}
