@@ -10,6 +10,10 @@ ou seja, tipo crédito ou débito.
   TipoMovimentacao ::= CREDITO | DEBITO
 \end{zed}
 
+\begin{zed}
+    [Saldo]
+\end{zed}
+
 Além disso, a conta do cliente terá um identificador para informar qual a modalidade da conta, ou seja,
 se a conta é do tipo "conta corrente" ou "conta poupança". Dessa forma, o sistema poderá tratar os casos
 em que as operações de saque, pagamentos e afins irão - ou não - modificar ambos os saldos.
@@ -64,10 +68,6 @@ cadastrados no sistema.
 \begin{schema}{Banco}
 	contas: Gerente \pfun Conta\\
 \end{schema}
-
-\begin{zed}
-    [Saldo]
-\end{zed}
 
 
 \begin{schema}{Movimentacao}
