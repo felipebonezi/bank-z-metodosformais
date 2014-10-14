@@ -34,11 +34,11 @@ cadastrados no sistema.
 \begin{schema}{ContaCorrente}
 	tipo!: TipoConta\\
 	movimentacoes: \power Movimentacao\\
-	saldo: \power Movimentacao \pfun N\\
+	saldo: \power Movimentacao \pfun \nat\\
 \where
 	tipo! = CORRENTE\\
 	saldo = \forall m: \power Movimentacao @ (c = \emptyset \implies saldo(c) = 0) 
-							^ (c \neq \emptyset \implies \exists n:c @ f(c) = n.valor + f(c \setminus \{n\})\\
+							^ (c \neq \emptyset \implies \exists n:c @ f(c) = n.valor + saldo(c \setminus \{n\})\\
 \end{schema}
 
 \begin{schema}{ContaPoupanca}
@@ -58,6 +58,10 @@ cadastrados no sistema.
 	titular: Cliente\\
 	dependente: Cliente\\
 \end{schema}
+
+A movimentação da conta - seja ela poupança ou corrente - deverá conter um valor acima de zero, evitando
+que a ambiguidade do tipo da movimentação aconteça, uma vez que toda movimentação terá seu tipo definido
+em "Movimentação Débito" ou "Movimentação Crédito".
 
 \begin{schema}{Movimentacao}
 	tm: TipoMovimentacao\\
