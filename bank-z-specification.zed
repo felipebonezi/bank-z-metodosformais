@@ -48,7 +48,7 @@ cadastrados no sistema.
 \where
 	tipo! = POUPANCA\\
 	saldo = \forall m: \power Movimentacao @ (c = \emptyset \implies saldo(c) = 0) 
-							^ (c \neq \emptyset \implies \exists n:c @ f(c) = n.valor + f(c \setminus \{n\})\\
+							\land (c \neq \emptyset \implies \exists n:c @ f(c) = n.valor + f(c \setminus \{n\})\\
 \end{schema}
 
 \begin{schema}{Conta}
@@ -60,8 +60,10 @@ cadastrados no sistema.
 \end{schema}
 
 \begin{schema}{Movimentacao}
-	tm:TipoMovimentacao\\
+	tm: TipoMovimentacao\\
 	valor: \nat
+\where
+	valor >= 0
 \end{schema}
 
 \begin{schema}{Cliente}
