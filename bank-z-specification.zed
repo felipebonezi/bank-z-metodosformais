@@ -1,83 +1,161 @@
-A conta do cliente - seja ela individual ou conjunta - é formada por um conjunto de movimentações. Essas
-movimentações serão responsáveis por gerar o saldo da conta do cliente a partir do tipo de movimentação,
-ou seja, tipo crédito ou débito. 
-
 \begin{zed}
-  [ Nome, Movimentacao ]
+  [Nome]
 \end{zed}
 
 \begin{zed}
   TipoMovimentacao ::= CREDITO | DEBITO
 \end{zed}
 
-Além disso, a conta do cliente terá um identificador para informar qual a modalidade da conta, ou seja,
-se a conta é do tipo "conta corrente" ou "conta poupança". Dessa forma, o sistema poderá tratar os casos
-em que as operações de saque, pagamentos e afins irão - ou não - modificar ambos os saldos.
-
-\begin{zed}
-  TipoConta ::= CORRENTE | POUPANCA
-\end{zed}
-
-A conta pode ser de baixa automática ou de baixa manual. A primeira dá a possibilidade de haver 
-uma transição automática, da poupança para a conta corrente, caso o saldo da conta seja menor do que o débito
-que o usuário esteja tentando fazer naquele momento. A segunda opção não possibilita transição automática, 
-caso o saldo da conta corrente seja menor do que a do débito, que o usuário está tentando fazer no momento.
-
 \begin{zed}
   Modalidade ::= BAIXA_AUTOMATICA | BAIXA_MANUAL
 \end{zed}
 
-Note que uma conta poderá conter um cliente como dependente. Nesse caso, nosso schema de conta do cliente
-deverá conter uma única entidade identificando tal cliente que estará contido na lista de clientes 
-cadastrados no sistema.
-
-\begin{schema}{ContaCorrente}
-	tipo!: TipoConta\\
-	movimentacoes: \power Movimentacao\\
-	saldo: \power Movimentacao \pfun \nat\\
-\where
-	tipo! = CORRENTE\\
-	saldo = \forall m: \power Movimentacao @ (c = \emptyset \implies saldo(c) = 0) 
-							^ (c \neq \emptyset \implies \exists n:c @ f(c) = n.valor + saldo(c \setminus \{n\})\\
-\end{schema}
-
-\begin{schema}{ContaPoupanca}
-	tipo!: TipoConta\\
-	movimentacoes: \power Movimentacao\\
-	saldo: \power Movimentacao \pfun N\\
-\where
-	tipo! = POUPANCA\\
-	saldo = \forall m: \power Movimentacao @ (c = \emptyset \implies saldo(c) = 0) 
-							\land (c \neq \emptyset \implies \exists n:c @ f(c) = n.valor + f(c \setminus \{n\})\\
-\end{schema}
-
-\begin{schema}{Conta}
-	cc: ContaCorrente\\
-	cp: ContaPoupanca\\
-	modalidade: Modalidade\\
+\begin{schema}{ContaIndividual}
 	titular: Cliente\\
+\end{schema}
+
+\begin{schema}{ContaConjunta}
+	ContaIndividual\\
 	dependente: Cliente\\
 \end{schema}
 
-A movimenta��o da conta - seja ela poupan�a ou corrente - dever� conter um valor acima de zero, evitando
-que a ambiguidade do tipo da movimenta��o aconte�a, uma vez que toda movimenta��o ter� seu tipo definido
-em "Movimenta��o D�bito" ou "Movimenta��o Cr�dito".
+\begin{zed}
+	TipoConta ::= individual \ldata ContaIndividual \rdata | conjunta \ldata ContaConjunta \rdata
+\end{zed}
+
+\begin{schema}{ContaCorrente}
+	movimentacoes_c: \power Movimentacao\\
+	saldo_c: \nat\\
+	tipo: TipoConta\\
+	saldo: \power Movimentacao \pfun \nat\\
+\where
+	saldo_c = \forall m: movimentacoes_c @ 
+							(m = \emptyset \implies saldo(m) = 0) 
+							^ 
+							((m.tm = DEBITO => \exists n:m @ saldo(m) = saldo(m \setminus \{n\}) - n.valor)
+							v
+							(m.tm = CREDITO => \exists n:m @ saldo(m) = n.valor + saldo(m \setminus \{n\})))\\
+\end{schema}
+
+\begin{schema}{ContaPoupanca}
+	ContaCorrente
+	movimentacoes_p: \power Movimentacao\\
+	modalidade: Modalidade\\
+	saldo_p: \nat\\
+\where
+	saldo_p = \forall m: movimentacoes_p @ 
+							(m = \emptyset \implies saldo(m) = 0) 
+							^ 
+							((m.tm = DEBITO => \exists n:m @ saldo(m) = saldo(m \setminus \{n\}) - n.valor)
+							v
+							(m.tm = CREDITO => \exists n:m @ saldo(m) = n.valor + saldo(m \setminus \{n\})))\\
+\end{schema}
+
+\begin{zed}
+	Conta ::= cc \ldata ContaCorrente \rdata | cp \ldata ContaPoupanca \rdata
+\end{zed}
 
 \begin{schema}{Movimentacao}
 	tm: TipoMovimentacao\\
 	valor: \nat
-\where
-	valor >= 0
 \end{schema}
 
 \begin{schema}{Cliente}
-	nomeDoCliente: Nome\\
+	nome: Nome\\
 \end{schema}
 
 \begin{schema}{Gerente}
 	nome: Nome\\
 \end{schema}
 
-\begin{schema}{Banco}
-	contas: Gerente \pfun Conta\\
+\begin{schema}{LogAddConta}
+	c?: Conta\\
+	g?: Gerente\\
 \end{schema}
+
+\begin{schema}{LogDelConta}
+	c?: Conta\\
+	g?: Gerente\\
+\end{schema}
+
+\begin{schema}{LogAddDependente}
+	c?: Conta\\
+	d?: Cliente\\
+	g?: Gerente\\
+\end{schema}
+
+\begin{schema}{LogDelDependente}
+	c?: Conta\\
+	d?: Cliente\\
+	g?: Gerente\\
+\end{schema}
+
+\begin{zed}
+	OperacaoGerente ::= ADD_CONTA \ldata LogAddConta\rdata | DEL_CONTA \ldata LogDelConta \rdata | ADD_DEPENDENTE \ldata LogAddDependente \rdata | DEL_DEPENDENTE \ldata LogDelDependente \rdata
+\end{zed}
+
+\begin{schema}{Banco}
+	gerentes: \power Gerente\\
+	contas: \power Conta\\
+	clientes : \power Cliente\\
+	titulares : Cliente \pinj Conta\\
+	dependentes : Cliente \pinj Conta\\
+	historico_g : Gerente \pfun \seq OperacaoGerente\\
+\where
+	\ran dependentes \subseteq \ran titulares\\
+	\dom titulares \cap \dom dependentes = \emptyset\\
+	\dom titulares \cup \dom dependentes = clientes\\
+	\ran titulares = contas\\
+\end{schema}
+
+
+------
+
+\begin{schema}{AbrirConta}
+	\Delta Banco\\
+	gerente? : Gerente\\
+	titular? : Cliente\\
+	c? : Conta\\
+\where
+	titular? \notin clientes\\
+	c? \notin contas\\
+	titulares' = titulares \cup \{ titular? \mapsto c? \}\\
+	historico_g' = historico_g \oplus (\cat ADD_CONTA(\lblot c == c?, g == gerente? \rblot))\\
+	gerentes' = gerentes\\
+	dependentes' = dependentes\\
+\end{schema}
+
+\begin{schema}{FecharConta}
+	\delta Banco\\
+	c? : Conta\\
+\where
+	c? \in contas\\
+	titulares' = titulares \setminus (c?.tipo.titular)\\
+	dependentes' = dependentes \setminus (c?.tipo \in \ran ContaConjunta => ((ContaConjunta~)(c?)).dependente)\\
+	gerentes' = gerentes\\
+\end{schema}
+
+\begin{schema}{AdicionarDependente}
+	\delta Banco\\
+	c? : Conta\\
+	dependente? : Cliente\\
+\where
+	depente? \notin clientes\\
+	dependentes' = dependentes \cup \{ dependente? \mapsto c? \}\\
+	titulares' = titulares\\
+	gerentes' = gerentes\\
+\end{schema}
+
+\begin{schema}{RemoverDependente}
+	\delta Banco\\
+	c? : Conta\\
+	dependente? : Cliente\\
+\where
+	depente? \in \dom dependentes\\
+	dependentes' = \dom dependentes \setminus dependente? \\
+	titulares' = titulares\\
+	gerentes' = gerentes\\
+\end{schema}
+
+
+
